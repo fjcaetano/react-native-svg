@@ -174,10 +174,22 @@
     }
 
     if (!event) {
-        NSPredicate *const anyActive = [NSPredicate predicateWithFormat:@"active == TRUE"];
-        NSArray *const filtered = [self.subviews filteredArrayUsingPredicate:anyActive];
-        if ([filtered count] != 0) {
-            return [filtered.lastObject hitTest:transformed withEvent:event];
+        @try {
+            NSPredicate *const anyActive = [NSPredicate predicateWithFormat:@"active == TRUE"];
+            NSArray *const filtered = [self.subviews filteredArrayUsingPredicate:anyActive];
+            if ([filtered count] != 0) {
+                return [filtered.firstObject hitTest:transformed withEvent:event];
+            }
+        }
+        @catch(NSException *e) {
+            for (id subview in self.subviews) {
+                @try {
+                    [subview valueForKey:@"active"];
+                }
+                @catch(NSException *e2) {
+                    return [subview hitTest:transformed withEvent:event];
+                }
+            }
         }
     }
 
